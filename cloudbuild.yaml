@@ -1,13 +1,8 @@
 steps:
-  # Step 1: Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/menumlyn', '.']
-
-  # Step 2: Push Docker image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/menumlyn']
-
-  # Step 3: Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
@@ -15,17 +10,12 @@ steps:
         'run', 'deploy', 'menumlyn',
         '--image', 'gcr.io/$PROJECT_ID/menumlyn',
         '--platform', 'managed',
-        '--region', 'europe-central2',  # Change if needed
+        '--region', 'europe-central2',
         '--allow-unauthenticated'
       ]
 
 images:
   - 'gcr.io/$PROJECT_ID/menumlyn'
 
-# Fix for service account logging issue
 options:
   logging: CLOUD_LOGGING_ONLY
-  # Add your custom service account here
-  # Replace with your service account email, e.g.,
-  # menumlyn-builder@your-project.iam.gserviceaccount.com
-  service_account: 357323468401-compute@developer.gserviceaccount.com
