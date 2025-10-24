@@ -96,7 +96,4 @@ def get_main_page():
     return render_template('index.html', data = tabulka)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)
-
-#if __name__ == "__main__":
-#    serve(app, host="0.0.0.0", port=8000)
+    serve(app, host="0.0.0.0", port=8000)
