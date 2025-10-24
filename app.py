@@ -4,6 +4,7 @@ from waitress import serve
 from bs4 import BeautifulSoup
 from datetime import datetime
 import pytz
+import os
 
 def get_weekday():
     try:
@@ -96,4 +97,5 @@ def get_main_page():
     return render_template('index.html', data = tabulka)
 
 if __name__ == "__main__":
-    serve(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8080))
+    serve(app, host="0.0.0.0", port=port)
