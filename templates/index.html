@@ -5,8 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+<style>
+    body {
+        max-width: 1122px;
+        max-height: 763px;
+    }
+    #zajem {
+        width: 350px;
+    }
+    tr {
+        height: 65px;
+    }
+    table {
+        vertical-align: middle;
+        font-size: 22px;
+        width: 1122px;
+        text-align: center;
+    }
+</style>
 <body>
-    <div>
+    <div id="tabulka">
         {{data | safe}}
     </div>
 </body>

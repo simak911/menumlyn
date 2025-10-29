@@ -66,11 +66,10 @@ def pridej_piti(info):
     return info
 
 def preved(data):
-    b = "&nbsp;"*50
     html = ['<table border="1" cellspacing="0" cellpadding="4">']
-    html.append('<tr><th>Název</th><th>Příloha</th><th>Cena</th><th>Zájem</th></tr>')
+    html.append('<tr><th>Název</th><th>Příloha</th><th>Cena</th><th id="zajem">Zájem</th></tr>')
     for row in data:
-        html.append('<tr>' + ''.join(f'<td>{cell}</td>' for cell in row) + f'<td>{b}</td>' + '</tr>')
+        html.append('<tr>' + ''.join(f'<td>{cell}</td>' for cell in row) + f'<td></td>' + '</tr>')
     html.append('</table>')
     return '\n'.join(html)
 
