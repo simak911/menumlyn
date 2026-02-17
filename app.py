@@ -3,21 +3,7 @@ import requests
 from waitress import serve
 from bs4 import BeautifulSoup
 from datetime import datetime
-import pytz
 import os
-
-def get_weekday():
-    try:
-        timezone = "Europe/Prague"
-        url = f"https://worldtimeapi.org/api/timezone/{timezone}"
-        response = requests.get(url, timeout=5)
-        data = response.json()
-        return data["day_of_week"]
-    except:
-        timezone = "Europe/Prague"
-        tz = pytz.timezone(timezone)
-        now = datetime.now(tz)
-        return now.isoweekday()
 
 def extract_price(text):
     if not text:
@@ -32,42 +18,33 @@ def extract_price(text):
     return int(digits) if digits else 0
 
 
-def get_info(item):
-    name_elem = item.find(class_="mkdf-ml-title")
-    name = name_elem.find(recursive=False).get_text(strip=True)
-    price_elem = item.find(class_="mkdf-ml-price")
-    price = 0
-    if price_elem is not None:
-        price = extract_price(price_elem.get_text(strip=True))
-    label_elem = item.find(class_="mkdf-ml-label")
-    label = ""
-    if label_elem is not None:
-        label = label_elem.get_text(strip=True)
-    return name, price, label
-
-def get_daymenu(elem):
-    items = elem.find_all(recursive=False)
+def get_daymenu(elems):
     info = []
-    for item in items:
-        name, price, label = get_info(item)
-        info.append([name, label, price])
+    for jidlo in elems:
+        nazev_elem = jidlo.find(class_="col pr-0 flex-grow-1 day-menu-food-title")
+        nazev = nazev_elem.get_text(strip=True)
+        cena_elem = jidlo.find(class_= "col flex-grow-0 text-right day-menu-food-price text-nowrap")
+        cena_text = cena_elem.get_text(strip=True)
+        cena = extract_price(cena_text)
+        info.append([nazev,cena])
     return info
 
 def znic_polivku(info):
     nove_info = []
     for item in info:
-        if item[2] > 100:
+        if item[1] > 100:
             nove_info.append(item)
     return nove_info
 
 def pridej_piti(info):
-    info.append(["Karafa vody", "", 30])
-    info.append(["Malá kofola", "", 35])
+    info.append(["Karafa vody", 30])
+    info.append(["Malá kofola", 35])
+    info.append(["Malé pomelo grep", 39])
     return info
 
 def preved(data):
     html = ['<table border="1" cellspacing="0" cellpadding="4">']
-    html.append('<tr><th>Název</th><th>Příloha</th><th>Cena</th><th id="zajem">Zájem</th></tr>')
+    html.append('<tr><th>Název</th><th>Cena</th><th id="zajem">Zájem</th></tr>')
     for row in data:
         html.append('<tr>' + ''.join(f'<td>{cell}</td>' for cell in row) + f'<td></td>' + '</tr>')
     html.append('</table>')
@@ -76,8 +53,7 @@ def preved(data):
 app = Flask(__name__)
 @app.route('/')
 def get_main_page():
-    url = "https://vemlyne.cz/denni-nabidka/"
-    text = ""
+    url = "https://www.vemlyne.cz/pages/day-menu/"
     try:
         response = requests.get(url, timeout=8)
         response.raise_for_status()
@@ -85,11 +61,11 @@ def get_main_page():
         text = "Došlo k chybě."
         return render_template ('index.html', data = "Error")
     string_html = response.text
+
     s = BeautifulSoup(string_html, "html.parser")
-    elems = s.find_all(class_="mkdf-ml-holder")
-    wd = get_weekday()
-    elem = elems[wd-1]
-    info = get_daymenu(elem)
+    elems = s.find_all(class_="row day-menu-food pb-3")
+    get_daymenu(elems)
+    info = get_daymenu(elems)
     info = znic_polivku(info)
     info = pridej_piti(info)
     tabulka = preved(info)
